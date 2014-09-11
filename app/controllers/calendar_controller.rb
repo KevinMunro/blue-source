@@ -7,29 +7,25 @@ class CalendarController < ApplicationController
 
   def report
     errors = []
-    if filter_params[:start_date].blank?
-      errors << 'Start date is required for reporting'
-    end
-    if filter_params[:end_date].blank?
-      errors << 'End date is required for reporting'
-    end
-    if filter_params[:end_date] < filter_params[:start_date]
-      errors << 'Start date must be before end date.'
-    end
+    errors << 'Start date is required for reporting' if filter_params[:start_date].blank?
+    errors << 'End date is required for reporting' if filter_params[:end_date].blank?
+    errors << 'Start date must be before end date.' if (filter_params[:start_date].present? && filter_params[:end_date].present?) && filter_params[:end_date] < filter_params[:start_date]
 
     unless errors.blank?
-      redirect_to :back, flash: { error: errors }
+      redirect_to :root, flash: { error: errors }
       return
     end
 
-    @include_reasons = filter_params[:include_reasons].to_i == 1
+    @include_reasons = filter_params[:include_reasons] == '1'
 
-    @vacation_types = Vacation.types.map { |type| type if (filter_params[type.downcase.gsub(' ', '_').to_sym].to_i == 1) }.compact
+    @vacation_types = Vacation.types.map { |type| type if (filter_params[type.downcase.gsub(' ', '_').to_sym] == '1') }.compact
 
     @vacations = Vacation
       .where(vacation_type: @vacation_types)
       .vacations_in_range(filter_params['start_date'], filter_params['end_date'])
-    @vacations = @vacations.where.not(status: 'Pending') if filter_params[:include_pending].to_i == 0
+
+    @vacations = @vacations.include_pending(false) if filter_params[:include_pending] == '0'
+    @vacations = @vacations.where(employee_id: current_user.subordinates.pluck(:id)) if filter_params[:show_only_direct] == '1'
 
     unless filter_params['department'].blank? || filter_params['department'] == 'Select All'
       @vacations = @vacations.where(employee_id: Department.find(filter_params['department']).employees.pluck(:id))
@@ -133,8 +129,8 @@ class CalendarController < ApplicationController
 
   def get_report_vacations(vacations)
     vacations.map do |vacation|
-      end_date = [Date.parse(params['filter']['end_date']), vacation.end_date].min
-      start_date = [Date.parse(params['filter']['start_date']), vacation.start_date].max
+      end_date = [Date.parse(filter_params['end_date']), vacation.end_date].min
+      start_date = [Date.parse(filter_params['start_date']), vacation.start_date].max
       employee_dept_name = if vacation.employee.department.present?
                              vacation.employee.department.name
                            else
@@ -174,7 +170,7 @@ class CalendarController < ApplicationController
   end
 
   def filter_params
-    allowed_params = %i(start_date end_date department sick vacation floating_holiday other include_pending)
+    allowed_params = %i(start_date end_date department sick vacation floating_holiday other include_pending show_only_direct)
     allowed_params += %i(include_reasons) if current_user.admin?
     params.require(:filter).permit(allowed_params)
   end

@@ -19,6 +19,9 @@ three:
   start_date: 2013-12-23
   end_date: 2013-12-27
   business_days: 3
+  status: ''
+  employee: consultant2
+  manager: manager2
   vacation_type: Vacation
 
 contractor_vacation:

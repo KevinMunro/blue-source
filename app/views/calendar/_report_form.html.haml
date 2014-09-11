@@ -16,7 +16,10 @@
   #pending-and-reasons-checkboxes
     = f.label 'Include pending?', class: 'control-label'
     = f.check_box :include_pending
-    - if current_user && current_user.admin?
+    - if current_user.admin?
       = f.label 'Include reasons?', class: 'control-label'
       = f.check_box :include_reasons
+    - if show_direct_option?
+      = f.label 'Show only direct?', class: 'control-label'
+      = f.check_box :show_only_direct
   = f.submit 'Generate Report', class: 'btn btn-primary', 'data-loading-text' => 'Generating...'

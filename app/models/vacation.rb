@@ -8,6 +8,15 @@ class Vacation < ActiveRecord::Base
        (:filter_start_date BETWEEN vacations.start_date and vacations.end_date)
      ),filter_start_date: start_date, filter_end_date: end_date)
   end
+
+  scope :include_pending, ->(include) do
+    pending_clause = { status: 'Pending' }
+    if include
+      where(pending_clause)
+    else
+      where.not(pending_clause)
+    end
+  end
   
   belongs_to :employee
   belongs_to :manager, class_name: "Employee"

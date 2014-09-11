@@ -19,7 +19,7 @@ class VacationsControllerTest < ActionController::TestCase
     @vacation = vacations(:one)
     @vacation.manager = @manager
     @vacation.employee = @consultant
-    assert @vacation.save
+    assert @vacation.save, @vacation.errors.full_messages
 
     @pending_vacation = vacations(:pending)
     assert @pending_vacation.save, @pending_vacation.errors.full_messages

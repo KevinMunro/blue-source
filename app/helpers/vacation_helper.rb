@@ -3,7 +3,7 @@ module VacationHelper
   def calculate_fiscal_year(date = Date.current)
     date >= Date.new(date.year, 05, 01) ? date.year+1 : date.year
   end
-  
+
   #Calculates the next fiscal new year date for the given date.
   def fiscal_new_year_date(date = Date.current)
     Date.new(calculate_fiscal_year(date),05,01)
