@@ -11,8 +11,11 @@ gem 'simplecov', group: :test
 gem 'coveralls', require: false
 
 # Use postgres for staging
-gem 'pg', :group => :staging
-gem 'rails_12factor', group: :staging
+group :staging do
+  gem 'pg'
+  gem 'rails_12factor'
+  gem 'unicorn'
+end
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.0'
@@ -48,11 +51,12 @@ gem 'bcrypt-ruby'
 # Use LDAP for authentication
 gem 'net-ldap'
 
-# Use unicorn as the app server
-gem 'unicorn', group: :staging
-
 # Haml support!
 gem 'haml-rails'
+
+# Redis
+gem 'redis-rack-cache'
+gem 'redis-rails'
 
 # Use Capistrano for deployment
 group :development do
