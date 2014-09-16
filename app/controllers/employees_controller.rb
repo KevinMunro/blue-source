@@ -60,6 +60,7 @@ class EmployeesController < ApplicationController
     @modal_title = 'Add Consultant'
     @resource_for_angular = 'employee'
     respond_to do |format|
+      @employees = set_employees
       format.html
       format.json
     end
@@ -74,6 +75,10 @@ class EmployeesController < ApplicationController
   end
 
   private
+
+  def set_employees
+    current_user.all_subordinates.include_current_projects
+  end
 
   def set_employee
     @employee = Employee.find(params[:id] || params[:employee_id])

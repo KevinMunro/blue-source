@@ -33,6 +33,16 @@ class Employee < ActiveRecord::Base
   validate :employee_cannot_be_their_own_manager
   validate :resources_per_page_must_be_greater_than_zero
 
+  scope :include_current_projects, -> do
+    select('employees.*, e2.id as e_manager_id, e2.first_name as e_manager_first_name, e2.last_name as e_manager_last_name, titles.name as e_title, projects.id as current_project_id, projects.name as current_project')
+    .joins('LEFT OUTER JOIN employees e2 on employees.manager_id = e2.id')
+    .joins('LEFT OUTER JOIN titles on titles.id = employees.title_id')
+    .joins('LEFT OUTER JOIN project_histories on employees.id = project_histories.employee_id')
+    .joins('LEFT OUTER JOIN projects on projects.id = project_histories.project_id')
+    .where('(project_histories.roll_on_date IS NULL or project_histories.roll_on_date <= :date) and (project_histories.roll_off_date IS NULL or project_histories.roll_off_date >= :date)', date: Date.current)
+  end
+
+  # Deprecated, but keeping just as a backup so nothing breaks.
   def current_project
     all_project_histories = projects.where('roll_on_date <= :date and (roll_off_date IS NULL or roll_off_date >= :date)', date: Date.current)
     return nil if all_project_histories.blank?
@@ -146,9 +156,9 @@ class Employee < ActiveRecord::Base
   def all_subordinates
     return Employee.all if role == 'Company Admin'
     all_subordinates_ids = []
-    if !department.blank? && (role.in?(['Upper Management', 'Department Head', 'Department Admin']))
+    if department.present? && (role.in?(['Upper Management', 'Department Head', 'Department Admin']))
       return department.employees if subordinates.empty?
-      all_subordinates_ids += Employee.where(id: (department.employees.pluck(:id) + subordinates.pluck(:id)).flatten.uniq)
+      all_subordinates_ids += Employee.where(id: (department.employees.pluck(:id) + subordinates.pluck(:id)).flatten.uniq).includes(:projects)
     end
     all_subordinates_for_manager(all_subordinates_ids)
   end
