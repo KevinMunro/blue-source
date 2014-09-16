@@ -12,6 +12,8 @@ gem 'coveralls', require: false
 
 # Use postgres for staging
 group :staging do
+  gem 'appsignal'
+  gem 'newrelic_rpm'
   gem 'pg'
   gem 'rails_12factor'
   gem 'unicorn'
