@@ -34,7 +34,7 @@ class Employee < ActiveRecord::Base
   validate :resources_per_page_must_be_greater_than_zero
 
   scope :include_current_projects, -> do
-    select('employees.*, e2.id as e_manager_id, e2.first_name as e_manager_first_name, e2.last_name as e_manager_last_name, titles.name as e_title, projects.id as current_project_id, projects.name as current_project')
+    select('employees.*, e2.id as e_manager_id, e2.first_name as e_manager_first_name, e2.last_name as e_manager_last_name, titles.name as e_title, projects.id as current_project_id, projects.name as current_project_name')
     .joins('LEFT OUTER JOIN employees e2 on employees.manager_id = e2.id')
     .joins('LEFT OUTER JOIN titles on titles.id = employees.title_id')
     .joins('LEFT OUTER JOIN project_histories on employees.id = project_histories.employee_id')

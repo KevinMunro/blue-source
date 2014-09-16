@@ -14,7 +14,7 @@ json.array!(@employees) do |employee|
 	  end
   end
   json.project do
-    current_project = employee.current_project
+    current_project = employee.current_project_name
     if current_project.present?
       json.name current_project
       json.id employee.current_project_id
