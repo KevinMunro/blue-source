@@ -53,11 +53,11 @@ BlueSource::Application.configure do
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
   # Use a different cache store in production.
-  if ENV['REDISTOGO_URL']
-    config.cache_store = :redis_store, "#{ENV['REDISTOGO_URL']}/0/cache", { expires_in: 90.minutes }
+  if ENV['REDISCLOUD_URL']
+    config.cache_store = :redis_store, "#{ENV['REDISCLOUD_URL']}/0/cache", { expires_in: 90.minutes }
     config.action_dispatch.rack_cache = {
-        metastore:   "#{ENV['REDISTOGO_URL']}/0/metastore",
-        entitystore: "#{ENV['REDISTOGO_URL']}/0/entitystore"
+        metastore:   "#{ENV['REDISCLOUD_URL']}/0/metastore",
+        entitystore: "#{ENV['REDISCLOUD_URL']}/0/entitystore"
     }
   end
 
