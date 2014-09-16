@@ -56,8 +56,8 @@ BlueSource::Application.configure do
   if ENV['REDISCLOUD_URL']
     config.cache_store = :redis_store, "#{ENV['REDISCLOUD_URL']}/0/cache", { expires_in: 90.minutes }
     config.action_dispatch.rack_cache = {
-        metastore:   "#{ENV['REDISCLOUD_URL']}/1/metastore",
-        entitystore: "#{ENV['REDISCLOUD_URL']}/1/entitystore"
+        metastore:   "#{ENV['REDISCLOUD_URL']}/0/metastore",
+        entitystore: "#{ENV['REDISCLOUD_URL']}/0/entitystore"
     }
   end
 
