@@ -58,4 +58,8 @@ class ApplicationController < ActionController::Base
       redirect_to :login, flash: {error: 'You must be logged in to view this section of BlueSource.'}
     end
   end
+
+  def must_be_system_admin
+    redirect_to :root, flash: { error: 'WTF are you doing...' } unless current_user.system_admin?
+  end
 end

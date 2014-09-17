@@ -57,6 +57,10 @@ class Employee < ActiveRecord::Base
     status == 'Contractor'
   end
 
+  def system_admin?
+    sys_admin? || role == 'Company Admin'
+  end
+
   def department_area_head_or_admin?
     role.in?(['Upper Management', 'Department Head'])
   end
