@@ -5,25 +5,7 @@ class WelcomeController < ApplicationController
   
   def validate
     saml_response = saml_validation
-=begin
-    if params[:employee][:username] =~ (/^[a-z]+\.[a-z]+@orasi\.com$/) 
-      params[:employee][:email] = params[:employee][:username]
-      @employee = Employee.find_by(email: params[:employee][:email])
-    else
-      @employee = Employee.find_by(username: params[:employee][:username].downcase)
-    end
-=end
     @employee = Employee.find_by(username: saml_response.name_id)
-
-=begin
-    raise Exception, @employee.display_name
-    
-    unless @employee.present? && @employee.validate_against_ad(params[:employee][:password])
-      additional_errors = @employee.blank? ? [] : @employee.errors.full_messages
-      redirect_to :login, flash: {error: additional_errors+["Invalid username or password."]}
-      return
-    end
-=end
 
     if @employee
       session[:current_user_id] = @employee.id
@@ -42,27 +24,11 @@ class WelcomeController < ApplicationController
   def logout
     # Remove the user id from the session
     @_current_user = session[:current_user_id] = nil
-    redirect_to :login
+
+    redirect_to 'https://adfs.orasi.com/adfs/ls/?wa=wsignout1.0'
   end
   
   def login
-=begin
-    @employee = Employee.new
-    
-    @mybrowser = request.env['HTTP_USER_AGENT']
-    @compatibility_mode = !(request.env['HTTP_USER_AGENT'] =~ /compatible/).nil?
-    case @mybrowser
-    when /Firefox/
-      @browser_name = "Firefox"
-    when /Chrome/
-      @browser_name = "Chrome"
-    when /MSIE\s*\d+\.0/
-      @browser_name = /MSIE\s*\d+\.0/.match(@mybrowser)
-    when /rv:11.0/
-      @browser_name = "IE 11"
-    end
-=end
-
     request = OneLogin::RubySaml::Authrequest.new
     redirect_to(request.create(saml_settings))
   end
