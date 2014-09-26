@@ -83,37 +83,6 @@ class Employee < ActiveRecord::Base
     accrued_vacation_days_on_date(on_date, date_to_use)
   end
 
-  def validate_against_ad(password)
-    # Do authentication against the AD.
-    return false if password.blank?
-    unless Rails.env.production?
-      self.first_name, self.last_name = username.downcase.split('.') if first_name.blank? || last_name.blank?
-      self.email = "#{username.downcase}@orasi.com" if email.blank?
-      return true
-    end
-
-    set_ldap(username.downcase, password)
-
-    validated = @ldap.bind
-    if validated && (first_name.blank? || last_name.blank?)
-
-      filter = Net::LDAP::Filter.eq('samaccountname', username)
-      treebase = 'dc=orasi, dc=com'
-      self.first_name, self.last_name = @ldap.search(
-        base: treebase,
-        filter: filter,
-        attributes: %w(displayname)
-      ).first.displayname.first.downcase.split(' ')
-      self.email = @ldap.search(
-        base: treebase,
-        filter: filter,
-        attributes: %w(mail)
-      ).first.mail.first.downcase
-    end
-
-    validated
-  end
-
   def search_validate(employee_email, password)
     return false if password.blank?
     return false unless Rails.env.production?
