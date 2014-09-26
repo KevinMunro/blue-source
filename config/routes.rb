@@ -45,6 +45,7 @@ BlueSource::Application.routes.draw do
   post 'issue', to: 'welcome#issue', as: :issue
   post 'search', to: 'welcome#search_employee', as: :search
   post 'login_issue', to: 'welcome#login_issue', as: :login_issue
+  post '/auth/saml/callback', to: 'welcome#validate', as: :saml_login
 
   # Directory
   resource :directory, only: [:show], controller: 'directory' do

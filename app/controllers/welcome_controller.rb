@@ -4,20 +4,28 @@ class WelcomeController < ApplicationController
   layout "resource", only: :index
   
   def validate
+    saml_response = saml_validation
+=begin
     if params[:employee][:username] =~ (/^[a-z]+\.[a-z]+@orasi\.com$/) 
       params[:employee][:email] = params[:employee][:username]
       @employee = Employee.find_by(email: params[:employee][:email])
     else
       @employee = Employee.find_by(username: params[:employee][:username].downcase)
     end
+=end
+
+    @employee = Employee.find_by(username: saml_response.name_id)
+=begin
+    raise Exception, @employee.display_name
     
-    unless !@employee.blank? and @employee.validate_against_ad(params[:employee][:password])
+    unless @employee.present? && @employee.validate_against_ad(params[:employee][:password])
       additional_errors = @employee.blank? ? [] : @employee.errors.full_messages
       redirect_to :login, flash: {error: additional_errors+["Invalid username or password."]}
       return
     end
+=end
     
-    if @employee.save
+    if @employee
       session[:current_user_id] = @employee.id
       Session.create(session_id: session[:session_id])
       if @employee.role == "Base"
@@ -38,6 +46,7 @@ class WelcomeController < ApplicationController
   end
   
   def login
+=begin
     @employee = Employee.new
     
     @mybrowser = request.env['HTTP_USER_AGENT']
@@ -52,6 +61,10 @@ class WelcomeController < ApplicationController
     when /rv:11.0/
       @browser_name = "IE 11"
     end
+=end
+
+    request = OneLogin::RubySaml::Authrequest.new
+    redirect_to(request.create(saml_settings))
   end
 
   def index
@@ -93,5 +106,22 @@ class WelcomeController < ApplicationController
 
   def login_issue_params
     params.require(:login_issue).permit(:name, :email, :comments)
+  end
+
+  def saml_validation
+    response          = OneLogin::RubySaml::Response.new(params[:SAMLResponse])
+    response.settings = saml_settings
+
+    response
+  end
+
+  def saml_settings
+    settings = OneLogin::RubySaml::Settings.new
+    settings.assertion_consumer_service_url = "https://bluesource.orasi.com/auth/saml/callback"
+    settings.issuer = "https://bluesource.orasi.com"
+    settings.idp_sso_target_url = "https://adfs.orasi.com/adfs/ls/"
+    settings.idp_cert_fingerprint = "DF:36:3E:72:B1:36:D8:8E:32:55:41:B8:92:39:A9:03:7C:08:8F:88"
+
+    settings
   end
 end
