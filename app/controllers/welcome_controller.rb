@@ -3,11 +3,17 @@ class WelcomeController < ApplicationController
 
   protect_from_forgery except: :validate
   
-  layout "resource", only: :index
+  layout 'resource', only: :index
   
   def validate
-    saml_response = saml_validation
-    @employee = Employee.find_by(username: saml_response.name_id)
+    if Rails.env.production?
+      saml_response = saml_validation
+      username = saml_response.name_id
+    else
+      username = login_params[:username]
+    end
+
+    @employee = Employee.find_by(username: username)
 
     if @employee
       session[:current_user_id] = @employee.id
@@ -27,12 +33,33 @@ class WelcomeController < ApplicationController
     # Remove the user id from the session
     @_current_user = session[:current_user_id] = nil
 
-    redirect_to 'https://adfs.orasi.com/adfs/ls/?wa=wsignout1.0'
+    if Rails.env.production?
+      redirect_to 'https://adfs.orasi.com/adfs/ls/?wa=wsignout1.0'
+    else
+      redirect_to :login
+    end
   end
   
   def login
-    request = OneLogin::RubySaml::Authrequest.new
-    redirect_to(request.create(saml_settings))
+    if Rails.env.production?
+      saml_request = OneLogin::RubySaml::Authrequest.new
+      redirect_to(saml_request.create(saml_settings))
+      return
+    end
+
+    @employee = Employee.new
+    @mybrowser = request.env['HTTP_USER_AGENT']
+    @compatibility_mode = !(request.env['HTTP_USER_AGENT'] =~ /compatible/).nil?
+    case @mybrowser
+      when /Firefox/
+        @browser_name = "Firefox"
+      when /Chrome/
+        @browser_name = "Chrome"
+      when /MSIE\s*\d+\.0/
+        @browser_name = /MSIE\s*\d+\.0/.match(@mybrowser)
+      when /rv:11.0/
+        @browser_name = "IE 11"
+    end
   end
 
   def index
@@ -62,7 +89,11 @@ class WelcomeController < ApplicationController
     redirect_to :back, flash: {info: 'Login issue email sent.'}
   end
   
-  private 
+  private
+
+  def login_params
+    params.require(:employee).permit(:username)
+  end
   
   def issue_params
     params.require(:issue).permit(:comments, :type)
@@ -85,10 +116,10 @@ class WelcomeController < ApplicationController
 
   def saml_settings
     settings = OneLogin::RubySaml::Settings.new
-    settings.assertion_consumer_service_url = "https://bluesource.orasi.com/auth/saml/callback"
-    settings.issuer = "https://bluesource.orasi.com"
-    settings.idp_sso_target_url = "https://adfs.orasi.com/adfs/ls/"
-    settings.idp_cert_fingerprint = "DF:36:3E:72:B1:36:D8:8E:32:55:41:B8:92:39:A9:03:7C:08:8F:88"
+    settings.assertion_consumer_service_url = 'https://bluesource.orasi.com/auth/saml/callback'
+    settings.issuer = 'https://bluesource.orasi.com'
+    settings.idp_sso_target_url = 'https://adfs.orasi.com/adfs/ls/'
+    settings.idp_cert_fingerprint = 'DF:36:3E:72:B1:36:D8:8E:32:55:41:B8:92:39:A9:03:7C:08:8F:88'
 
     settings
   end
