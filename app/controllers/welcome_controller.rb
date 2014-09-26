@@ -116,10 +116,10 @@ class WelcomeController < ApplicationController
 
   def saml_settings
     settings = OneLogin::RubySaml::Settings.new
-    settings.assertion_consumer_service_url = 'https://bluesource.orasi.com/auth/saml/callback'
-    settings.issuer = 'https://bluesource.orasi.com'
-    settings.idp_sso_target_url = 'https://adfs.orasi.com/adfs/ls/'
-    settings.idp_cert_fingerprint = 'DF:36:3E:72:B1:36:D8:8E:32:55:41:B8:92:39:A9:03:7C:08:8F:88'
+    settings.assertion_consumer_service_url = ENV['BS_ASSERTION_CONSUMER_SERVICE_URL']
+    settings.issuer = ENV['BS_ISSUER']
+    settings.idp_sso_target_url = ENV['BS_IDP_SSO_TARGET_URL']
+    settings.idp_cert_fingerprint = ENV['BS_IDP_CERT_FINGERPRINT']
 
     settings
   end
