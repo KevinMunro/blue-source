@@ -13,8 +13,8 @@ class WelcomeController < ApplicationController
       @employee = Employee.find_by(username: params[:employee][:username].downcase)
     end
 =end
-
     @employee = Employee.find_by(username: saml_response.name_id)
+
 =begin
     raise Exception, @employee.display_name
     
@@ -24,11 +24,11 @@ class WelcomeController < ApplicationController
       return
     end
 =end
-    
+
     if @employee
       session[:current_user_id] = @employee.id
       Session.create(session_id: session[:session_id])
-      if @employee.role == "Base"
+      if @employee.role == 'Base'
         redirect_to view_employee_vacations_path(@employee)
       else
         redirect_to :root

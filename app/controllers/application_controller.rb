@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
-  protect_from_forgery with: :null_session#:exception
+  protect_from_forgery with: :exception
   
   helper_method :current_user
   
@@ -44,6 +44,7 @@ class ApplicationController < ActionController::Base
   
   # Only allow whitelisted roles.
   def require_manager_login
+    logger.debug current_user.inspect
     if current_user.nil?
       redirect_to :login, flash: {error: 'You must be logged in to view this section of BlueSource.'}
     elsif !current_user.manager_or_higher?
