@@ -1,5 +1,7 @@
 class WelcomeController < ApplicationController
   before_action :require_manager_login, only: :index
+
+  protect_from_forgery except: :validate
   
   layout "resource", only: :index
   
