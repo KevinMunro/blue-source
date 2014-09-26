@@ -16,7 +16,7 @@
 
 set :application, 'blue-source'
 server 'orasi-portal', user: 'deploy', roles: %w(web)
-set :linked_files, %w(db/production.sqlite3 config/api.yml)
+set :linked_files, %w(db/production.sqlite3 config/api.yml config/initializers/saml.rb config/initializers/bs_secret_token.rb)
 
 # Default branch is :master
 # ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }.call

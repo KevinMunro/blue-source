@@ -14,18 +14,18 @@
 # server list. The second argument is a, or duck-types, Hash and is
 # used to set extended properties on the server.
 
-set :application, 'blue-source-cert'
+set :application, 'blue-source'
 server 'orasi-portal', user: 'deploy', roles: %w(web)
-set :linked_files, %w(db/cert.sqlite3 config/api.yml config/initializers/bs_secret_token.rb)
+set :linked_files, %w(db/production.sqlite3 config/api.yml config/initializers/saml.rb config/initializers/bs_secret_token.rb)
 
 # Default branch is :master
 # ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }.call
 set :branch, :saml
-set :migration_role, :web
+set :migration_role, 'web'
 
 # Default deploy_to directory is /var/www/my_app
-set :deploy_to, '/var/www/blue-source-cert'
-set :rails_env, :cert
+set :deploy_to, '/var/www/blue-source-saml'
+set :rails_env, :production
 
 # Custom SSH Options
 # ==================

@@ -1,26 +1,24 @@
 class WelcomeController < ApplicationController
   before_action :require_manager_login, only: :index
+
+  protect_from_forgery except: :validate
   
-  layout "resource", only: :index
+  layout 'resource', only: :index
   
   def validate
-    if params[:employee][:username] =~ (/^[a-z]+\.[a-z]+@orasi\.com$/) 
-      params[:employee][:email] = params[:employee][:username]
-      @employee = Employee.find_by(email: params[:employee][:email])
+    if Rails.env.production?
+      saml_response = saml_validation
+      username = saml_response.name_id
     else
-      @employee = Employee.find_by(username: params[:employee][:username].downcase)
+      username = login_params[:username]
     end
-    
-    unless !@employee.blank? and @employee.validate_against_ad(params[:employee][:password])
-      additional_errors = @employee.blank? ? [] : @employee.errors.full_messages
-      redirect_to :login, flash: {error: additional_errors+["Invalid username or password."]}
-      return
-    end
-    
-    if @employee.save
+
+    @employee = Employee.find_by(username: username)
+
+    if @employee
       session[:current_user_id] = @employee.id
       Session.create(session_id: session[:session_id])
-      if @employee.role == "Base"
+      if @employee.role == 'Base'
         redirect_to view_employee_vacations_path(@employee)
       else
         redirect_to :root
@@ -34,23 +32,33 @@ class WelcomeController < ApplicationController
   def logout
     # Remove the user id from the session
     @_current_user = session[:current_user_id] = nil
-    redirect_to :login
+
+    if Rails.env.production?
+      redirect_to 'https://adfs.orasi.com/adfs/ls/?wa=wsignout1.0'
+    else
+      redirect_to :login
+    end
   end
   
   def login
+    if Rails.env.production?
+      saml_request = OneLogin::RubySaml::Authrequest.new
+      redirect_to(saml_request.create(saml_settings))
+      return
+    end
+
     @employee = Employee.new
-    
     @mybrowser = request.env['HTTP_USER_AGENT']
     @compatibility_mode = !(request.env['HTTP_USER_AGENT'] =~ /compatible/).nil?
     case @mybrowser
-    when /Firefox/
-      @browser_name = "Firefox"
-    when /Chrome/
-      @browser_name = "Chrome"
-    when /MSIE\s*\d+\.0/
-      @browser_name = /MSIE\s*\d+\.0/.match(@mybrowser)
-    when /rv:11.0/
-      @browser_name = "IE 11"
+      when /Firefox/
+        @browser_name = "Firefox"
+      when /Chrome/
+        @browser_name = "Chrome"
+      when /MSIE\s*\d+\.0/
+        @browser_name = /MSIE\s*\d+\.0/.match(@mybrowser)
+      when /rv:11.0/
+        @browser_name = "IE 11"
     end
   end
 
@@ -81,7 +89,11 @@ class WelcomeController < ApplicationController
     redirect_to :back, flash: {info: 'Login issue email sent.'}
   end
   
-  private 
+  private
+
+  def login_params
+    params.require(:employee).permit(:username)
+  end
   
   def issue_params
     params.require(:issue).permit(:comments, :type)
@@ -93,5 +105,22 @@ class WelcomeController < ApplicationController
 
   def login_issue_params
     params.require(:login_issue).permit(:name, :email, :comments)
+  end
+
+  def saml_validation
+    response          = OneLogin::RubySaml::Response.new(params[:SAMLResponse])
+    response.settings = saml_settings
+
+    response
+  end
+
+  def saml_settings
+    settings = OneLogin::RubySaml::Settings.new
+    settings.assertion_consumer_service_url = ENV['BS_ASSERTION_CONSUMER_SERVICE_URL']
+    settings.issuer = ENV['BS_ISSUER']
+    settings.idp_sso_target_url = ENV['BS_IDP_SSO_TARGET_URL']
+    settings.idp_cert_fingerprint = ENV['BS_IDP_CERT_FINGERPRINT']
+
+    settings
   end
 end

@@ -67,5 +67,8 @@ group :development do
   gem 'capistrano-rails'
 end
 
+#SAML
+gem 'ruby-saml'
+
 # Use debugger
 #gem 'debugger', group: [:development, :test]

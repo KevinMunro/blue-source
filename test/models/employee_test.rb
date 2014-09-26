@@ -224,11 +224,6 @@ class EmployeeTest < ActiveSupport::TestCase
     assert company_admin.can_view?(consultant)
   end
 
-  test 'employee can not login without password' do
-    employee_model = employees(:consultant)
-    assert_not employee_model.validate_against_ad('')
-  end
-
   # test 'employee can login with username and password in development environment' do
   #   Rails.env = 'development'
   #   employee1 = employees(:consultant)

@@ -9,4 +9,4 @@
 
 # Make sure your secret_key_base is kept private
 # if you're sharing your code publicly.
-BlueSource::Application.config.secret_key_base = '2b69fab7a0c156885d47be13afad7b4e253bfdb4250e9b8f109bcd2cd9fbec5d7ec7b7d7106d8bee1580deb48ba6501cf0c8f721f71d20e85dd0d154aba8387c'
+BlueSource::Application.config.secret_key_base = ENV['BS_SECRET_TOKEN'] || '7ca768d649321698fa4c8af59eadf910b34b12c2d0275b2265e91877c63569c3506aa7d2c66e84c4587fe9682aecb4e7341263ac9d703eed10bba53254731511'
