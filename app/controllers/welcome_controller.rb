@@ -2,9 +2,9 @@ class WelcomeController < ApplicationController
   before_action :require_manager_login, only: :index
 
   protect_from_forgery except: :validate
-  
+
   layout 'resource', only: :index
-  
+
   def validate
     if Rails.env.production?
       saml_response = saml_validation
@@ -16,12 +16,12 @@ class WelcomeController < ApplicationController
     @employee = Employee.find_by(username: username)
 
     if @employee.blank?
-      redirect_to :login, flash: {error: I18n.t(:employee_not_found)}
+      redirect_to :login, flash: { error: I18n.t(:employee_not_found) }
     else
       validate_and_redirect_employee
     end
   end
-  
+
   # "Delete" a login, aka "log the user out"
   def logout
     # Remove the user id from the session
@@ -33,7 +33,7 @@ class WelcomeController < ApplicationController
       redirect_to :login
     end
   end
-  
+
   def login
     if Rails.env.production?
       saml_request = OneLogin::RubySaml::Authrequest.new
@@ -46,49 +46,47 @@ class WelcomeController < ApplicationController
     @compatibility_mode = !(request.env['HTTP_USER_AGENT'] =~ /compatible/).nil?
     case @mybrowser
       when /Firefox/
-        @browser_name = "Firefox"
+        @browser_name = 'Firefox'
       when /Chrome/
-        @browser_name = "Chrome"
+        @browser_name = 'Chrome'
       when /MSIE\s*\d+\.0/
         @browser_name = /MSIE\s*\d+\.0/.match(@mybrowser)
       when /rv:11.0/
-        @browser_name = "IE 11"
+        @browser_name = 'IE 11'
     end
   end
 
   def index
     @modal_title = I18n.t(:add_consultant)
-    @resource_for_angular = "employee"
+    @resource_for_angular = 'employee'
   end
-  
+
   def issue
-    email = HelpMailer.comments_email(current_user.display_name,current_user.email,issue_params[:comments],issue_params[:type])
+    email = HelpMailer.comments_email(current_user.display_name, current_user.email, issue_params[:comments], issue_params[:type])
     email.deliver
-    redirect_to :back, flash: {info: "#{issue_params[:type].capitalize} email sent."}
+    redirect_to :back, flash: { info: "#{issue_params[:type].capitalize} email sent." }
   end
 
   def search_employee
-    
     if current_user && current_user.admin? && current_user.search_validate(search_params[:employee_email], search_params[:admin_password])
-      redirect_to :back, flash: {info: "Employee's username: #{current_user.employee_searched_username}"}
+      redirect_to :back, flash: { info: "Employee's username: #{current_user.employee_searched_username}" }
     else
-      redirect_to :back, flash: {error: I18n.t(:invalid_employee_email_or_admin_password)}
+      redirect_to :back, flash: { error: I18n.t(:invalid_employee_email_or_admin_password) }
     end
-
   end
 
   def login_issue
     email = HelpMailer.login_help_email(login_issue_params[:name], login_issue_params[:email], login_issue_params[:comments])
     email.deliver
-    redirect_to :back, flash: {info: I18n.t(:login_issue_email_sent)}
+    redirect_to :back, flash: { info: I18n.t(:login_issue_email_sent) }
   end
-  
+
   private
 
   def login_params
     params.require(:employee).permit(:username)
   end
-  
+
   def issue_params
     params.require(:issue).permit(:comments, :type)
   end
@@ -123,12 +121,12 @@ class WelcomeController < ApplicationController
       session[:current_user_id] = @employee.id
       Session.create(session_id: session[:session_id])
       if @employee.role == 'Base'
-        redirect_to view_employee_vacations_path(@employee)
+        redirect_to session[:original_url] || view_employee_vacations_path(@employee)
       else
-        redirect_to :root
+        redirect_to session[:original_url] || :root
       end
     else
-      redirect_to :login, flash: {error: @employee.errors.full_messages}
+      redirect_to :login, flash: { error: @employee.errors.full_messages }
     end
   end
 end

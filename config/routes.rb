@@ -41,7 +41,6 @@ BlueSource::Application.routes.draw do
   # Welcome (login)
   get 'login', to: 'welcome#login', as: :login
   get 'logout', to: 'welcome#logout', as: :logout
-  #post 'login', to: 'welcome#validate', as: :check_login
   post 'issue', to: 'welcome#issue', as: :issue
   post 'search', to: 'welcome#search_employee', as: :search
   post 'login_issue', to: 'welcome#login_issue', as: :login_issue
