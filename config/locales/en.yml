@@ -21,7 +21,7 @@
 
 en:
   welcome: Welcome
-  employee_not_found: Employee not found in BlueSource.
+  resource_not_found: '%{resource} not found in BlueSource.'
   invalid_employee_email_or_admin_password: Invalid employee email or admin password.
   login_issue_email_sent: Login issue email sent.
   add_consultant: Add Consultant
@@ -41,4 +41,8 @@ en:
             information can be accessed securely without the need for
             creating a separate account.
   invalid_privileges: You do not have the correct privileges to view this resource.
+  invalid_query_string: Query string 'q' is blank, this should be a BlueSource username.
+  field_is_required: '%{field} is required.'
+  start_date_before_end: Start date must be before end date.
+  no_add_permission: You do not have permission to add this employee.
 

@@ -16,7 +16,7 @@ class WelcomeController < ApplicationController
     @employee = Employee.find_by(username: username)
 
     if @employee.blank?
-      redirect_to :login, flash: { error: I18n.t(:employee_not_found) }
+      redirect_to :login, flash: { error: I18n.t(:resource_not_found, resource: 'Employee') }
     else
       validate_and_redirect_employee
     end

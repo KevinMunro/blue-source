@@ -40,8 +40,7 @@ class ApiController < ApplicationController
   end
 
   def query_params
-    @errors << "Query string 'q' is blank, this"\
-      ' should be a BlueSource username.' if params[:q].blank?
+    @errors << t(:invalid_query_string) if params[:q].blank?
     params.permit(:q)
   end
 

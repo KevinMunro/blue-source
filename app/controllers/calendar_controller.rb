@@ -8,13 +8,13 @@ class CalendarController < ApplicationController
   def report
     errors = []
     if filter_params[:start_date].blank?
-      errors << 'Start date is required for reporting'
+      errors << t(:field_is_required, field: 'Start date')
     end
     if filter_params[:end_date].blank?
-      errors << 'End date is required for reporting'
+      errors << t(:field_is_required, field: 'End date')
     end
     if filter_params[:end_date] < filter_params[:start_date]
-      errors << 'Start date must be before end date.'
+      errors << t(:start_date_before_end)
     end
 
     unless errors.blank?

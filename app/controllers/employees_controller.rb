@@ -44,7 +44,7 @@ class EmployeesController < ApplicationController
   def create
     @employee = Employee.new(employee_params)
     unless current_user.can_add? @employee
-      redirect_to :root, flash: { error: 'You do not have permission to add this employee.' }
+      redirect_to :root, flash: { error: t(:no_add_permission) }
       return
     end
 
