@@ -25,7 +25,7 @@ class WelcomeController < ApplicationController
   # "Delete" a login, aka "log the user out"
   def logout
     # Remove the user id from the session
-    @_current_user = session[:current_user_id] = nil
+    clear_session
 
     if Rails.env.production?
       redirect_to ENV['BS_SIGN_OUT_URL']
@@ -82,6 +82,11 @@ class WelcomeController < ApplicationController
   end
 
   private
+
+  def clear_session
+    @_current_user = session[:current_user_id] = nil
+    session[:original_url] = nil
+  end
 
   def login_params
     params.require(:employee).permit(:username)
