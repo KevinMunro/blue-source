@@ -20,4 +20,5 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  welcome: "Welcome"
+  welcome: Welcome
+  employee_not_found: Employee not found in BlueSource.
