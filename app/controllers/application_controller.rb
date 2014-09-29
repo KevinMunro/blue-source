@@ -49,7 +49,7 @@ class ApplicationController < ActionController::Base
     if current_user.blank?
       redirect_to :login, flash: { error: I18n.t(:must_be_logged_in) }
     elsif !current_user.manager_or_higher?
-      redirect_to view_employee_vacations_path(current_user), flash: { error: I18n.t(:invalid_privileges) }
+      redirect_to view_employee_vacations_path(current_user)
     end
   end
 
