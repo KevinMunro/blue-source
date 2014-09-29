@@ -22,3 +22,10 @@
 en:
   welcome: Welcome
   employee_not_found: Employee not found in BlueSource.
+  invalid_employee_email_or_admin_password: Invalid employee email or admin password.
+  login_issue_email_sent: Login issue email sent.
+  add_consultant: Add Consultant
+  session_expired: Your session has expired, you must relogin to BlueSource.
+  invalid_date: Date is invalid.
+  must_be_logged_in: You must be logged in to view this section of BlueSource.
+  invalid_admin_area_access: WTF are you doing...

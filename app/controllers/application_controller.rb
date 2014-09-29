@@ -19,7 +19,7 @@ class ApplicationController < ActionController::Base
     Session.sweep('24 hours')
     if session[:current_user_id].present? && Session.find_by(session_id: session[:session_id]).blank?
       @_current_user = session[:current_user_id] = nil
-      redirect_to :login, flash: {error: 'Your session has expired, you must relogin to BlueSource.'} unless request.original_url == login_url
+      redirect_to :login, flash: {error: I18n.t(:session_expired)} unless request.original_url == login_url
     end
   end
  
@@ -37,7 +37,7 @@ class ApplicationController < ActionController::Base
       begin
         Date.parse(date_param)
       rescue
-        redirect_to :back, flash: {error: 'Date is invalid.'}
+        redirect_to :back, flash: {error: I18n.t(:invalid_date)}
       end
     end
   end
@@ -46,7 +46,7 @@ class ApplicationController < ActionController::Base
   def require_manager_login
     logger.debug current_user.inspect
     if current_user.nil?
-      redirect_to :login, flash: {error: 'You must be logged in to view this section of BlueSource.'}
+      redirect_to :login, flash: {error: I18n.t(:must_be_logged_in)}
     elsif !current_user.manager_or_higher?
       redirect_to view_employee_vacations_path(current_user)
     end
@@ -56,11 +56,11 @@ class ApplicationController < ActionController::Base
     if current_user.blank? && request.referer.blank?
       redirect_to :login
     elsif current_user.blank?
-      redirect_to :login, flash: {error: 'You must be logged in to view this section of BlueSource.'}
+      redirect_to :login, flash: {error: I18n.t(:must_be_logged_in)}
     end
   end
 
   def must_be_system_admin
-    redirect_to :root, flash: { error: 'WTF are you doing...' } unless current_user.system_admin?
+    redirect_to :root, flash: { error: I18n.t(:invalid_admin_area_access) } unless current_user.system_admin?
   end
 end
