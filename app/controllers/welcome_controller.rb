@@ -28,7 +28,7 @@ class WelcomeController < ApplicationController
     @_current_user = session[:current_user_id] = nil
 
     if Rails.env.production?
-      redirect_to 'https://adfs.orasi.com/adfs/ls/?wa=wsignout1.0'
+      redirect_to ENV['BS_SIGN_OUT_URL']
     else
       redirect_to :login
     end
@@ -57,7 +57,7 @@ class WelcomeController < ApplicationController
   end
 
   def index
-    @modal_title = "Add Consultant"
+    @modal_title = I18n.t(:add_consultant)
     @resource_for_angular = "employee"
   end
   
@@ -72,7 +72,7 @@ class WelcomeController < ApplicationController
     if current_user && current_user.admin? && current_user.search_validate(search_params[:employee_email], search_params[:admin_password])
       redirect_to :back, flash: {info: "Employee's username: #{current_user.employee_searched_username}"}
     else
-      redirect_to :back, flash: {error: 'Invalid employee email or admin password.'}
+      redirect_to :back, flash: {error: I18n.t(:invalid_employee_email_or_admin_password)}
     end
 
   end
@@ -80,7 +80,7 @@ class WelcomeController < ApplicationController
   def login_issue
     email = HelpMailer.login_help_email(login_issue_params[:name], login_issue_params[:email], login_issue_params[:comments])
     email.deliver
-    redirect_to :back, flash: {info: 'Login issue email sent.'}
+    redirect_to :back, flash: {info: I18n.t(:login_issue_email_sent)}
   end
   
   private
