@@ -15,16 +15,10 @@ class WelcomeController < ApplicationController
 
     @employee = Employee.find_by(username: username)
 
-    if @employee
-      session[:current_user_id] = @employee.id
-      Session.create(session_id: session[:session_id])
-      if @employee.role == 'Base'
-        redirect_to view_employee_vacations_path(@employee)
-      else
-        redirect_to :root
-      end
+    if @employee.blank?
+      redirect_to :login, flash: {error: I18n.t(:employee_not_found)}
     else
-      redirect_to :login, flash: {error: @employee.errors.full_messages}
+      validate_and_redirect_employee
     end
   end
   
@@ -116,11 +110,25 @@ class WelcomeController < ApplicationController
 
   def saml_settings
     settings = OneLogin::RubySaml::Settings.new
-    settings.assertion_consumer_service_url = ENV['BS_ASSERTION_CONSUMER_SERVICE_URL']
+    settings.assertion_consumer_service_url = ENV['ASSERTION_CONSUMER_SERVICE_URL']
     settings.issuer = ENV['BS_ISSUER']
     settings.idp_sso_target_url = ENV['BS_IDP_SSO_TARGET_URL']
     settings.idp_cert_fingerprint = ENV['BS_IDP_CERT_FINGERPRINT']
 
     settings
+  end
+
+  def validate_and_redirect_employee
+    if @employee.save
+      session[:current_user_id] = @employee.id
+      Session.create(session_id: session[:session_id])
+      if @employee.role == 'Base'
+        redirect_to view_employee_vacations_path(@employee)
+      else
+        redirect_to :root
+      end
+    else
+      redirect_to :login, flash: {error: @employee.errors.full_messages}
+    end
   end
 end
