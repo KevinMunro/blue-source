@@ -3,7 +3,15 @@ class CalendarController < ApplicationController
   include VacationHelper
 
   before_action :require_login
-  helper_method :get_orasi_holiday, :change_month
+  helper_method :get_orasi_holiday, :change_month, :sort_icon_enabled?
+
+  def sort_icon_enabled?(header)
+    if params['sort'].present?
+      params['sort'].humanize.downcase == header.downcase
+    elsif header == 'Name'
+      true
+    end
+  end
 
   def report
     errors = []
@@ -122,7 +130,7 @@ class CalendarController < ApplicationController
                 when 'name'
                   :employee_name
                 else
-                  params[:sort]
+                  params[:sort] || :employee_name
                 end
 
     vacations = vacations.map do |vacation|
