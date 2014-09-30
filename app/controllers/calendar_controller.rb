@@ -199,7 +199,7 @@ class CalendarController < ApplicationController
     page_number = 1 if page_number <= 0
     @active_page = page_number - 1
 
-    filter = OpenStruct.new(filter_params)
+    @filter = OpenStruct.new(filter_params)
     @page_count = (@vacations.count.to_f / resources_per_page).ceil
     @report_vacations = @report_vacations[0+((@active_page)*resources_per_page)..resources_per_page+((@active_page)*resources_per_page)]
 
