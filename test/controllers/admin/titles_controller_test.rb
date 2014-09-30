@@ -4,6 +4,7 @@ module Admin
   class TitlesControllerTest < ActionController::TestCase
     setup do
       @title = titles(:consultant)
+      @manager_title = titles(:manager)
     end
 
     test 'should get index' do
@@ -52,6 +53,16 @@ module Admin
     test 'appropriate handling of unknown title' do
       request.env['HTTP_REFERER'] = root_url
       delete :destroy, { id: 121_323_132_142_414_214 }, current_user_id: employees(:sys_admin).id
+      assert_not_nil flash[:error]
+    end
+
+    test 'should not be able to create a title with the same name' do
+      post :create, { title: { name: @title.name } }, current_user_id: employees(:sys_admin).id
+      assert_not_nil flash[:error]
+    end
+
+    test 'should not be able to update a title to a title with the same name' do
+      put :update, { id: @title.id, title: { name: @manager_title.name } }, current_user_id: employees(:sys_admin).id
       assert_not_nil flash[:error]
     end
   end

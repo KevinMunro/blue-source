@@ -33,7 +33,7 @@ module Admin
           format.html { redirect_to admin_titles_path, flash: { success: t(:create_success, resource: resource_name) } }
           format.json { render action: 'show', status: :created, location: @title }
         else
-          format.html { render action: 'new' }
+          format.html { redirect_to :new_admin_title, flash: { error: @title.errors.full_messages } }
           format.json { render json: admin_title_path(@title).errors, status: :unprocessable_entity }
         end
       end
@@ -47,7 +47,7 @@ module Admin
           format.html { redirect_to admin_titles_path(@title), flash: { success: t(:update_success, resource: resource_name) } }
           format.json { head :no_content }
         else
-          format.html { render action: 'edit' }
+          format.html { redirect_to :edit_admin_title, flash: { error: @title.errors.full_messages } }
           format.json { render json: admin_title_path(@title).errors, status: :unprocessable_entity }
         end
       end

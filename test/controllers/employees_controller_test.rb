@@ -109,8 +109,44 @@ class EmployeesControllerTest < ActionController::TestCase
     assert_not_nil flash[:error]
   end
 
-  test 'no current user and no referer is redirected tro login' do
+  test 'no current user and no referer is redirected to login' do
     get :index
     assert_redirected_to :login
+  end
+
+  test 'user can set resourcesPerPage if logged in' do
+    consultant = employees(:consultant)
+    assert_not_equal '10', consultant.preferences[:resourcesPerPage]
+    patch :preferences, { employee_id: consultant.id, employee: { preferences: { resourcesPerPage: 10 } } }, current_user_id: consultant.id
+    consultant.reload
+    assert_equal '10', consultant.preferences[:resourcesPerPage]
+    assert_nil flash[:error]
+  end
+
+  test 'user cannot set resourcesPerPage if not logged in' do
+    consultant = employees(:consultant)
+    assert_not_equal '10', consultant.preferences[:resourcesPerPage]
+    patch :preferences, { employee_id: consultant.id, employee: { preferences: { resourcesPerPage: 10 } } }
+    consultant.reload
+    assert_not_equal '10', consultant.preferences[:resourcesPerPage]
+    assert_redirected_to :login
+  end
+
+  test 'other user cannot set resourcesPerPage if logged in' do
+    consultant = employees(:consultant)
+    manager = employees(:manager)
+    assert_not_equal '10', consultant.preferences[:resourcesPerPage]
+    patch :preferences, { employee_id: consultant.id, employee: { preferences: { resourcesPerPage: 10 } } }, current_user_id: manager.id
+    consultant.reload
+    assert_not_equal '10', consultant.preferences[:resourcesPerPage]
+    assert_not_nil flash[:error]
+  end
+
+  test 'user cannot set resourcesPerPage to less than 0 if logged in' do
+    consultant = employees(:consultant)
+    patch :preferences, { employee_id: consultant.id, employee: { preferences: { resourcesPerPage: -1 } } }, current_user_id: consultant.id
+    consultant.reload
+    assert_not_equal '-1', consultant.preferences[:resourcesPerPage]
+    assert_not_nil flash[:error]
   end
 end
