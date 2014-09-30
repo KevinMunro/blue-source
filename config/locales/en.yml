@@ -28,7 +28,6 @@ en:
   session_expired: Your session has expired, you must relogin to BlueSource.
   invalid_date: Date is invalid.
   must_be_logged_in: You must be logged in to view this section of BlueSource.
-  invalid_admin_area_access: WTF are you doing...
   about: >
             BlueSource is an employee information tracking system.
             Its creation came from the need to have a universal and
@@ -44,5 +43,13 @@ en:
   invalid_query_string: Query string 'q' is blank, this should be a BlueSource username.
   field_is_required: '%{field} is required.'
   start_date_before_end: Start date must be before end date.
-  no_add_permission: You do not have permission to add this employee.
-
+  no_add_permission: You do not have permission to add this %{resource}.
+  no_view_permission: You do not have permission to view this %{resource}.
+  no_edit_permission: You do not have permission to edit this %{resource}.
+  no_edit_preferences_permission: You do not have permission to edit preferences for this %{resource}.
+  create_success: '%{resource} successfully created.'
+  update_success: '%{resource} successfully updated.'
+  delete_success: '%{resource} successfully deleted.'
+  cannot_delete_saved_time_off: Time off is accepted.  You cannot modify the vacation from here.  Please speak with your manager.
+  no_manager_no_pto: You don't have a manager, so you cannot request time off.
+  borrowed_pto: Time off saved, but this is borrowing days from fiscal year %{fiscal_year}

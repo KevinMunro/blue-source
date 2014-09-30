@@ -62,7 +62,7 @@ class ApplicationController < ActionController::Base
   end
 
   def must_be_system_admin
-    redirect_to :root, flash: { error: I18n.t(:invalid_admin_area_access) } unless current_user.system_admin?
+    redirect_to :root, flash: { error: I18n.t(:invalid_privileges) } unless current_user.system_admin?
   end
 
   def set_original_url

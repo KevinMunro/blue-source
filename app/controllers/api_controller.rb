@@ -36,7 +36,7 @@ class ApiController < ApplicationController
 
   def set_employee
     @employee = Employee.find_by(username: query_params[:q])
-    @errors << 'Employee not found' unless @employee
+    @errors << t(:resource_not_found, resource: 'Employee') unless @employee
   end
 
   def query_params

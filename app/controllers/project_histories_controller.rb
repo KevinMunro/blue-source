@@ -5,7 +5,7 @@ class ProjectHistoriesController < ApplicationController
   before_action :set_employee
   before_action :can_edit_employee
 
-  before_action :set_project_history, only: [:show, :destroy, :update]
+  before_action :set_project_history, only: %i(show destroy update)
 
   def index
     @default_scheduled_hours_start = "8:30 AM"
@@ -30,7 +30,7 @@ class ProjectHistoriesController < ApplicationController
   def create
     @project_history = ProjectHistory.new(project_history_params)
     if @project_history.save
-      redirect_to employee_project_histories_path(@employee), flash: {success: "Project history successfully created.", created: @project_history.id}
+      redirect_to employee_project_histories_path(@employee), flash: {success: t(:create_success, resource: resource_name), created: @project_history.id}
     else
       redirect_to employee_project_histories_path(@employee), flash: {error: @project_history.errors.full_messages}
     end
@@ -38,7 +38,7 @@ class ProjectHistoriesController < ApplicationController
 
   def update
     if @project_history.update(project_history_params)
-      redirect_to employee_project_histories_path(@employee), flash: {success: "Project history successfully updated.", created: @project_history.id}
+      redirect_to employee_project_histories_path(@employee), flash: {success: t(:update_success, resource: resource_name), created: @project_history.id}
     else
       redirect_to employee_project_histories_path(@employee), flash: {error: @project_history.errors.full_messages}
     end
@@ -52,7 +52,7 @@ class ProjectHistoriesController < ApplicationController
 
   def destroy
     if @project_history.destroy
-      redirect_to employee_project_histories_path(@employee), flash: {success: "Project history successfully deleted."}
+      redirect_to employee_project_histories_path(@employee), flash: {success: t(:delete_success, resource: resource_name)}
     else
       redirect_to employee_project_histories_path(@employee), flash: {error: @project_history.errors.full_messages}
     end
@@ -74,6 +74,10 @@ class ProjectHistoriesController < ApplicationController
   end
 
   def can_edit_employee
-    redirect_to :root, flash: {error: "You do not have permission to edit this employee."} unless current_user.can_edit? @employee
+    redirect_to :root, flash: {error: t(:no_edit_permission, resource: 'employee')} unless current_user.can_edit? @employee
+  end
+
+  def resource_name
+    'Project history'
   end
 end
