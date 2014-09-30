@@ -3,6 +3,7 @@ class CalendarController < ApplicationController
   include VacationHelper
 
   before_action :require_login
+  before_action :set_file_name
   helper_method :get_orasi_holiday, :change_month, :sort_icon_enabled?
 
   def sort_icon_enabled?(header)
@@ -123,6 +124,12 @@ class CalendarController < ApplicationController
 
   private
 
+  def filter_params
+    allowed_params = %i(start_date end_date department sick vacation floating_holiday other include_pending)
+    allowed_params += %i(include_reasons) if current_user.admin?
+    params.require(:filter).permit(allowed_params)
+  end
+
   def get_report_vacations(vacations)
     sort_key = case params[:sort]
                 when 'department'
@@ -172,18 +179,17 @@ class CalendarController < ApplicationController
     end
   end
 
-  def filter_params
-    allowed_params = %i(start_date end_date department sick vacation floating_holiday other include_pending)
-    allowed_params += %i(include_reasons) if current_user.admin?
-    params.require(:filter).permit(allowed_params)
-  end
-
   def resources_per_page
     if current_user.preferences.blank? || current_user.preferences['resourcesPerPage'].blank?
       15
     else
       current_user.preferences['resourcesPerPage'].to_i
     end
+  end
+
+  def set_file_name
+    return if params[:format].blank? || params[:format] == 'html'
+    response.headers['Content-Disposition'] = "attachment; filename=PDOReport_#{Time.now.to_formatted_s(:number)}.#{params[:format]}"
   end
 
   def set_pagination
