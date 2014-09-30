@@ -35,7 +35,7 @@ class EmployeesController < ApplicationController
   def preferences
     preferences = params.require(:employee).permit(preferences: :resourcesPerPage)
     if @employee.update(preferences)
-      redirect_to @employee, flash: { success: t(:update_success, resource: resource_name) }
+      redirect_to @employee, flash: { success: t(:update_success, resource: resource_name.capitalize) }
     else
       redirect_to @employee, flash: { error: @employee.errors.full_messages }
     end
@@ -49,7 +49,7 @@ class EmployeesController < ApplicationController
     end
 
     if @employee.save
-      redirect_to :root, flash: { success: t(:create_success, resource: resource_name) }
+      redirect_to :root, flash: { success: t(:create_success, resource: resource_name.capitalize) }
     else
       redirect_to root_url(employee: params['employee']), flash: { error: @employee.errors.full_messages }
     end

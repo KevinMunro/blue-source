@@ -301,19 +301,6 @@ class Employee < ActiveRecord::Base
     role.in? ['Department Admin', 'Company Admin']
   end
 
-  def pdo_taken_in_range(start_date, end_date, type, except_id = nil)
-    pdo_days = 0.0
-    vacations.where(status: [nil, '']).where(vacation_type: type).where('start_date >= ? and start_date <= ?', start_date.to_s, end_date.to_s).where.not(id: except_id).each do |vacation|
-      if vacation.end_date <= end_date
-        pdo_days += vacation.business_days
-      else
-        pdo_days += Vacation.calc_business_days_for_range(vacation.start_date, end_date)
-        pdo_days -= 0.5 if vacation.half_day?
-      end
-    end
-    pdo_days
-  end
-
   def pdo_taken(on_date, type, id = nil)
     case type
     when 'Vacation' then vacation_days_taken(on_date, id)
