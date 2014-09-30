@@ -35,6 +35,7 @@ class CalendarController < ApplicationController
       @vacations = @vacations.where(employee_id: Department.find(filter_params['department']).employees.pluck(:id))
     end
 
+    # Try to sort directly from the database, this might get changed later.
     unless params[:sort].blank?
       case params[:sort].to_sym
       when :name
@@ -49,24 +50,7 @@ class CalendarController < ApplicationController
     @vacations = @vacations.reverse_order if params['rev'] == 'true'
     @report_vacations = get_report_vacations(@vacations)
     respond_to do |format|
-      format.html do
-        page_number = params['pgn'].to_i
-        page_number = 1 if page_number <= 0
-        @active_page = page_number - 1
-
-        resources_per_page = if current_user.preferences.blank? || current_user.preferences['resourcesPerPage'].blank?
-                               15
-                             else
-                               current_user.preferences['resourcesPerPage'].to_i
-                             end
-
-        @filter = OpenStruct.new(filter_params)
-        @page_count = (@vacations.count.to_f / resources_per_page).ceil
-        set_pagination
-        @vacations = @vacations.limit(resources_per_page).offset(resources_per_page * (page_number - 1))
-        @report_vacations = get_report_vacations(@vacations)
-
-      end
+      format.html { set_pagination }
       format.json
       format.csv
     end
@@ -132,14 +116,20 @@ class CalendarController < ApplicationController
   private
 
   def get_report_vacations(vacations)
-    vacations.map do |vacation|
+    sort_key = case params[:sort]
+                when 'department'
+                  :employee_dept_name
+                when 'name'
+                  :employee_name
+                else
+                  params[:sort]
+                end
+
+    vacations = vacations.map do |vacation|
       end_date = [Date.parse(params['filter']['end_date']), vacation.end_date].min
       start_date = [Date.parse(params['filter']['start_date']), vacation.start_date].max
-      employee_dept_name = if vacation.employee.department.present?
-                             vacation.employee.department.name
-                           else
-                             nil
-                           end
+      employee_dept_name = vacation.employee.department.present? ? vacation.employee.department.name : ''
+
       OpenStruct.new(
                        start_date: start_date,
                        end_date: end_date,
@@ -149,7 +139,8 @@ class CalendarController < ApplicationController
                        business_days: (calc_business_days_for_range(start_date, end_date) - ((vacation.half_day && end_date == vacation.end_date) ? 0.5 : 0)),
                        reason: vacation.reason
                      )
-    end
+    end.sort_by {|k,v| k[sort_key]}
+    params[:rev] == 'true' ? vacations.reverse : vacations
   end
 
   def get_orasi_holiday(day)
@@ -179,8 +170,25 @@ class CalendarController < ApplicationController
     params.require(:filter).permit(allowed_params)
   end
 
+  def resources_per_page
+    if current_user.preferences.blank? || current_user.preferences['resourcesPerPage'].blank?
+      15
+    else
+      current_user.preferences['resourcesPerPage'].to_i
+    end
+  end
+
   def set_pagination
     @max_pagination_pages = 10
+
+    page_number = params['pgn'].to_i
+    page_number = 1 if page_number <= 0
+    @active_page = page_number - 1
+
+    filter = OpenStruct.new(filter_params)
+    @page_count = (@vacations.count.to_f / resources_per_page).ceil
+    @report_vacations = @report_vacations[0+((@active_page)*resources_per_page)..resources_per_page+((@active_page)*resources_per_page)]
+
     @next_disabled = @active_page == @page_count - 1
     @prev_disabled = @active_page == 0
 
