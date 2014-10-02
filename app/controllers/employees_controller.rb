@@ -68,7 +68,7 @@ class EmployeesController < ApplicationController
 
   def update
     if @employee.update(employee_params)
-      redirect_to @employee, flash: { success: t(:update_success, resource: resource_name), project: employee_params[:project_id].present? }
+      redirect_to @employee, flash: { success: t(:update_success, resource: resource_name.capitalize), project: employee_params[:project_id].present? }
     else
       redirect_to @employee, flash: { error: @employee.errors.full_messages }
     end
