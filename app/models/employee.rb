@@ -56,7 +56,12 @@ class Employee < ActiveRecord::Base
     status == 'Contractor'
   end
 
+  def inactive?
+    status == 'Inactive'
+  end
+
   def system_admin?
+    return false if contractor? || inactive?
     sys_admin? || role == 'Company Admin'
   end
 

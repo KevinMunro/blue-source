@@ -13,7 +13,7 @@ class WelcomeController < ApplicationController
       username = login_params[:username]
     end
 
-    @employee = Employee.find_by(username: username)
+    @employee = Employee.find_by(username: username.downcase)
 
     if @employee.blank?
       redirect_to :login, flash: { error: I18n.t(:resource_not_found, resource: 'Employee') }

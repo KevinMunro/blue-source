@@ -259,4 +259,24 @@ class EmployeeTest < ActiveSupport::TestCase
     new_employee = employees(:consultant)
     assert admin.can_add?(new_employee)
   end
+
+  #Want to make sure we don't lose employees due to this query.
+  test 'optimization query test' do
+    Employee.all.each do |employee|
+      next if employee.all_subordinates.blank?
+      assert_equal employee.all_subordinates.pluck(:id), employee.all_subordinates.include_current_projects.pluck(:id)
+    end
+  end
+
+  test 'contractor sys admin is not a sys admin' do
+    assert_not employees(:contractor_sys_admin).system_admin?
+  end
+
+  test 'inactive sys admin is not a sys admin' do
+    assert_not employees(:inactive_sys_admin).system_admin?
+  end
+
+  test 'permanent sys admin is a sys admin' do
+    assert employees(:sys_admin).system_admin?
+  end
 end
