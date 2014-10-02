@@ -35,7 +35,7 @@ class EmployeesController < ApplicationController
   def preferences
     preferences = params.require(:employee).permit(preferences: :resourcesPerPage)
     if @employee.update(preferences)
-      redirect_to @employee, flash: { success: 'Employee successfully updated.' }
+      redirect_to @employee, flash: { success: t(:update_success, resource: resource_name.capitalize) }
     else
       redirect_to @employee, flash: { error: @employee.errors.full_messages }
     end
@@ -44,12 +44,12 @@ class EmployeesController < ApplicationController
   def create
     @employee = Employee.new(employee_params)
     unless current_user.can_add? @employee
-      redirect_to :root, flash: { error: 'You do not have permission to add this employee.' }
+      redirect_to :root, flash: { error: t(:no_add_permission, resource: resource_name.downcase) }
       return
     end
 
     if @employee.save
-      redirect_to :root, flash: { success: 'Employee added successfully.' }
+      redirect_to :root, flash: { success: t(:create_success, resource: resource_name.capitalize) }
     else
       redirect_to root_url(employee: params['employee']), flash: { error: @employee.errors.full_messages }
     end
@@ -60,6 +60,7 @@ class EmployeesController < ApplicationController
     @modal_title = 'Add Consultant'
     @resource_for_angular = 'employee'
     respond_to do |format|
+      @employees = set_employees
       format.html
       format.json
     end
@@ -67,13 +68,17 @@ class EmployeesController < ApplicationController
 
   def update
     if @employee.update(employee_params)
-      redirect_to @employee, flash: { success: 'Employee successfully updated.', project: employee_params[:project_id].present? }
+      redirect_to @employee, flash: { success: t(:update_success, resource: resource_name), project: employee_params[:project_id].present? }
     else
       redirect_to @employee, flash: { error: @employee.errors.full_messages }
     end
   end
 
   private
+
+  def set_employees
+    current_user.all_subordinates.include_current_projects
+  end
 
   def set_employee
     @employee = Employee.find(params[:id] || params[:employee_id])
@@ -105,16 +110,20 @@ class EmployeesController < ApplicationController
 
   def can_view
     return if current_user.can_view? @employee
-    redirect_to :root, flash: { error: 'You do not have permission to view this employee.' }
+    redirect_to :root, flash: { error: t(:no_view_permission, resource: resource_name.downcase) }
   end
 
   def can_edit
     return if current_user.can_edit? @employee
-    redirect_to :root, flash: { error: 'You do not have permission to edit this employee.' }
+    redirect_to :root, flash: { error: t(:no_edit_permission, resource: resource_name.downcase) }
   end
 
   def employee_must_be_current_user
     return if current_user == @employee
-    redirect_to :root, flash: { error: 'You do not have permission to edit preferences for this employee.' }
+    redirect_to :root, flash: { error: t(:no_edit_preferences_permission, resource: resource_name.downcase) }
+  end
+
+  def resource_name
+    'employee'
   end
 end

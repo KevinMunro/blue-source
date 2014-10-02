@@ -36,12 +36,11 @@ class ApiController < ApplicationController
 
   def set_employee
     @employee = Employee.find_by(username: query_params[:q])
-    @errors << 'Employee not found' unless @employee
+    @errors << t(:resource_not_found, resource: 'Employee') unless @employee
   end
 
   def query_params
-    @errors << "Query string 'q' is blank, this"\
-      ' should be a BlueSource username.' if params[:q].blank?
+    @errors << t(:invalid_query_string) if params[:q].blank?
     params.permit(:q)
   end
 

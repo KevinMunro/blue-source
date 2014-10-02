@@ -34,7 +34,7 @@ class ProjectsController < ApplicationController
 
   def update
     if @project.update(project_params)
-      redirect_to @project, flash: { success: 'Project successfully updated.' }
+      redirect_to @project, flash: { success: t(:update_success, resource: resource_name) }
     else
       redirect_to :back, flash: { error: @project.errors.full_messages }
     end
@@ -43,7 +43,7 @@ class ProjectsController < ApplicationController
   def create
     @project = Project.new(project_params)
     if @project.save
-      redirect_to :back, flash: { success: 'Project saved successfully.' }
+      redirect_to :back, flash: { success: t(:create_success, resource: resource_name) }
     else
       redirect_to :back, flash: { error: @project.errors.full_messages }
     end
@@ -90,9 +90,13 @@ class ProjectsController < ApplicationController
     params.require(:project).permit(leads: []) if current_user.upper_management?
   end
 
+  def resource_name
+    'Project'
+  end
+
   def validate_can_edit_projects
     return if current_user.upper_management?
 
-    redirect_to :back, flash: { error: 'You do not have permission to edit projects.' }
+    redirect_to :back, flash: { error: t(:no_edit_permission, resource: resource_name.downcase) }
   end
 end

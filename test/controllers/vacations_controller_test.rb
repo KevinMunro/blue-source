@@ -7,7 +7,7 @@ class VacationsControllerTest < ActionController::TestCase
     @manager2 = employees(:manager2)
     assert @manager2.save
     @consultant = employees(:consultant)
-    assert @consultant.save
+    assert @consultant.save, @consultant.errors.full_messages
     @consultant2 = employees(:consultant2)
     assert @consultant2.save
     @director = employees(:upper_manager)

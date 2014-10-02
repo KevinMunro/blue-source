@@ -1,6 +1,6 @@
 <h1>Login</h1>
 <%= render "notification_section" %>
-<%= form_for @employee, url: :check_login, html: {role: "form", class: "form-horizontal"} do |u| %>
+<%= form_for @employee, url: :saml_login, html: {role: "form", class: "form-horizontal"} do |u| %>
 <div class="container login-form">
 	<div class="form-group">
 		<%= u.label :username %>

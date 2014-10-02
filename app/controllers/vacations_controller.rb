@@ -24,7 +24,7 @@ class VacationsController < ApplicationController
         if warning_msg.present?
           format.html { redirect_to employee_vacations_path(@employee), flash: { warning: warning_msg, created: @vacation.id } }
         else
-          format.html { redirect_to employee_vacations_path(@employee, fy: @vacation.start_date.current_fiscal_year), flash: { success: 'Time off successfully saved.', created: @vacation.id } }
+          format.html { redirect_to employee_vacations_path(@employee, fy: @vacation.start_date.current_fiscal_year), flash: { success: t(:create_success, resource: resource_name), created: @vacation.id } }
         end
       else
         format.html { redirect_to employee_vacations_path(@employee), flash: { error: @vacation.errors.full_messages } }
@@ -40,7 +40,7 @@ class VacationsController < ApplicationController
         if warning_msg.present?
           format.html { redirect_to employee_vacations_path(@employee, fy: @vacation.start_date.current_fiscal_year), flash: { warning: warning_msg, created: @vacation.id } }
         else
-          format.html { redirect_to employee_vacations_path(@employee, fy: @vacation.start_date.current_fiscal_year), flash: { success: 'Time off successfully updated.', created: @vacation.id } }
+          format.html { redirect_to employee_vacations_path(@employee, fy: @vacation.start_date.current_fiscal_year), flash: { success: t(:update_success, resource: resource_name), created: @vacation.id } }
         end
       else
         format.html { redirect_to :back, flash: { error: @vacation.errors.full_messages, created: @vacation.id } }
@@ -52,7 +52,7 @@ class VacationsController < ApplicationController
     respond_to do |format|
       if @vacation.destroy
         send_confirmation_email
-        format.html { redirect_to :back, flash: { success: 'Time off successfully deleted.' } }
+        format.html { redirect_to :back, flash: { success: t(:delete_success, resource: resource_name) } }
       else
         format.html { redirect_to :back, flash: { error: @vacation.errors.full_messages, created: @vacation.id } }
       end
@@ -61,7 +61,7 @@ class VacationsController < ApplicationController
 
   def cancel
     unless @vacation.status == 'Pending'
-      redirect_to :back, flash: { error: 'Time off is accepted.  You cannot modify the vacation from here.  Please speak with your manager.' }
+      redirect_to :back, flash: { error: t(:cannot_delete_saved_time_off) }
       return
     end
 
@@ -70,7 +70,7 @@ class VacationsController < ApplicationController
 
   def requests
     if current_user.manager.blank?
-      redirect_to :back, flash: { error: "You don't have a manager, so you cannot request time off." }
+      redirect_to :back, flash: { error: t(:no_manager_no_pto) }
       return
     end
 
@@ -78,7 +78,7 @@ class VacationsController < ApplicationController
     respond_to do |format|
       if @vacation.save
         VacationRequestMailer.request_email(current_user, current_user.manager, @vacation, params[:memo], params['cc'] == '1' ? current_user.email : nil).deliver
-        format.html { redirect_to view_employee_vacations_path(current_user, fy: @vacation.start_date.current_fiscal_year), flash: { success: 'Time off successfully saved.', created: @vacation.id } }
+        format.html { redirect_to view_employee_vacations_path(current_user, fy: @vacation.start_date.current_fiscal_year), flash: { success: t(:create_success, resource: resource_name), created: @vacation.id } }
       else
         format.html { redirect_to :back, flash: { error: @vacation.errors.full_messages } }
       end
@@ -94,10 +94,10 @@ class VacationsController < ApplicationController
     warnings = []
 
     if @employee.vacations.where(vacation_type: 'Vacation', status: [nil, '']).reduce(0.0) { |sum, vacation| sum += vacation.pdo_taken(fiscal_year_of_start_date) } > @employee.max_vacation_days(Date.new(fiscal_year_of_start_date))
-      warnings << "Time off saved, but this is borrowing days from fiscal year #{fiscal_year_of_start_date + 1}."
+      warnings << t(:borrowed_pto, fiscal_year: fiscal_year_of_start_date + 1)
 
       if fiscal_year_of_start_date != fiscal_year_of_end_date
-        warnings << "Time off saved, but this is borrowing days from fiscal year #{fiscal_year_of_end_date + 1}."
+        warnings << t(:borrowed_pto, fiscal_year: fiscal_year_of_end_date + 1)
       end
     end
 
@@ -128,19 +128,19 @@ class VacationsController < ApplicationController
 
   def check_edit_permissions
     return if current_user.can_edit? @employee
-    redirect_to :root, flash: { error: 'You have insufficient privileges to edit time off for that employee.' }
+    redirect_to :root, flash: { error: t(:no_edit_permission, resource: resource_name.downcase) }
   end
 
   def check_view_permissions
     return if current_user.can_view? @employee
-    redirect_to :root, flash: { error: 'You have insufficient privileges to view time off for that employee.' }
+    redirect_to :root, flash: { error: t(:no_view_permission, resource: resource_name.downcase) }
   end
 
   def set_vacation
     @vacation = Vacation.find(params[:id])
   rescue
     respond_to do |format|
-      format.html { redirect_to :back, flash: { error: 'Time off not found in BlueSource.' } }
+      format.html { redirect_to :back, flash: { error: t(:resource_not_found, resource: resource_name) } }
     end
   end
 
@@ -163,5 +163,9 @@ class VacationsController < ApplicationController
     all_params[:status] = ''
     all_params[:half_day] = false if all_params[:half_day].blank?
     all_params
+  end
+
+  def resource_name
+    'Time off'
   end
 end

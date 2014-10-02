@@ -20,4 +20,36 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  welcome: "Welcome"
+  welcome: Welcome
+  resource_not_found: '%{resource} not found in BlueSource.'
+  invalid_employee_email_or_admin_password: Invalid employee email or admin password.
+  login_issue_email_sent: Login issue email sent.
+  add_consultant: Add Consultant
+  session_expired: Your session has expired, you must relogin to BlueSource.
+  invalid_date: Date is invalid.
+  must_be_logged_in: You must be logged in to view this section of BlueSource.
+  about: >
+            BlueSource is an employee information tracking system.
+            Its creation came from the need to have a universal and
+            collaborative tool for storing employee records. By using
+            BlueSource, a user is able to maintain information about
+            employees, projects, and time off. All data is stored on
+            a central database allowing employees to be transferred
+            between projects and functional teams securely and efficiently.
+            BlueSource uses your current Orasi user credentials, so
+            information can be accessed securely without the need for
+            creating a separate account.
+  invalid_privileges: You do not have the correct privileges to view this resource.
+  invalid_query_string: Query string 'q' is blank, this should be a BlueSource username.
+  field_is_required: '%{field} is required.'
+  start_date_before_end: Start date must be before end date.
+  no_add_permission: You do not have permission to add this %{resource}.
+  no_view_permission: You do not have permission to view this %{resource}.
+  no_edit_permission: You do not have permission to edit this %{resource}.
+  no_edit_preferences_permission: You do not have permission to edit preferences for this %{resource}.
+  create_success: '%{resource} successfully created.'
+  update_success: '%{resource} successfully updated.'
+  delete_success: '%{resource} successfully deleted.'
+  cannot_delete_saved_time_off: Time off is accepted.  You cannot modify the vacation from here.  Please speak with your manager.
+  no_manager_no_pto: You don't have a manager, so you cannot request time off.
+  borrowed_pto: Time off saved, but this is borrowing days from fiscal year %{fiscal_year}

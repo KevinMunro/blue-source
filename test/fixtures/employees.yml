@@ -1,4 +1,13 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+saml_tester:
+  username: lewis.gordon
+  first_name: lewis
+  last_name: gordon
+  role: Base
+  email: lewis.gordon@orasi.com
+  manager: consultant
+  department: rural
+
 manager:
   username: bob.barker
   first_name: bob
@@ -120,3 +129,21 @@ no_manager:
   role: Base
   status: Permanent
   department: rural
+
+inactive_sys_admin:
+  username: matt.watson
+  first_name: matt
+  last_name: watson
+  role: Consultant
+  status: Inactive
+  department: rural
+  sys_admin: true
+
+contractor_sys_admin:
+  username: kevin.munro
+  first_name: kevin
+  last_name: munro
+  role: Consultant
+  status: Contractor
+  department: rural
+  sys_admin: true

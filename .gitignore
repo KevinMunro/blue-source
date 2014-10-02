@@ -38,4 +38,5 @@ pickle-email-*.html
 public/assets
 .settings
 config/initializers/secret_token.rb
+config/initializers/saml.rb
 .idea/
