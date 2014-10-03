@@ -98,7 +98,7 @@ class VacationsControllerTest < ActionController::TestCase
 
   test 'flash is not nil when navigating to view vacations' do
     get :view, employee_id: @consultant.id
-    assert_not_nil flash[:error]
+    assert_response :redirect
   end
 
   test 'manager should be able to create a vacation for employee' do
