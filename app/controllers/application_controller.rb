@@ -47,7 +47,7 @@ class ApplicationController < ActionController::Base
     set_original_url
 
     if current_user.blank?
-      redirect_to :login, flash: { error: I18n.t(:must_be_logged_in) }
+      redirect_to :login
     elsif !current_user.manager_or_higher?
       redirect_to view_employee_vacations_path(current_user)
     end
@@ -57,7 +57,7 @@ class ApplicationController < ActionController::Base
     set_original_url
 
     if current_user.blank? || current_user.blank? && request.referer.blank?
-      redirect_to :login, flash: { error: I18n.t(:must_be_logged_in) }
+      redirect_to :login
     end
   end
 
