@@ -35,8 +35,8 @@ class Employee < ActiveRecord::Base
 
   scope :include_current_projects, -> do
     select('employees.*, e2.id as e_manager_id, e2.first_name as e_manager_first_name, e2.last_name as e_manager_last_name, titles.name as e_title, projects.id as current_project_id, projects.name as current_project_name')
-    .joins("LEFT OUTER JOIN project_histories ph1 on employees.id = ph1.employee_id and ph1.roll_on_date <= '#{Date.current}' and ph1.roll_off_date >= '#{Date.current})'")
-    .joins('LEFT OUTER JOIN project_histories ph2 on ph1.employee_id = ph2.employee_id and ph1.project_id < ph2.project_id')
+    .joins("LEFT OUTER JOIN project_histories ph1 on employees.id = ph1.employee_id and ph1.roll_on_date <= '#{Date.current}' and (ph1.roll_off_date IS NULL or ph1.roll_off_date >= '#{Date.current}')")
+    .joins("LEFT OUTER JOIN project_histories ph2 on ph1.employee_id = ph2.employee_id and ph2.roll_on_date <= '#{Date.current}' and (ph2.roll_off_date IS NULL or ph2.roll_off_date >= '#{Date.current}') and ph1.id > ph2.id")
     .joins('LEFT OUTER JOIN employees e2 on employees.manager_id = e2.id')
     .joins('LEFT OUTER JOIN titles on titles.id = employees.title_id')
     .joins('LEFT OUTER JOIN projects on projects.id = ph1.project_id')
