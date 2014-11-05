@@ -77,7 +77,7 @@ class EmployeesController < ApplicationController
   private
 
   def set_employees
-    current_user.all_subordinates.include_current_projects
+    current_user.all_subordinates.include_current_projects unless current_user.all_subordinates.nil?
   end
 
   def set_employee
