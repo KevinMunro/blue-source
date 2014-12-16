@@ -1,1 +1,1 @@
-BlueSource::Application.config.version = '1.0.5'
+BlueSource::Application.config.version = '1.0.6'

@@ -115,11 +115,15 @@ class VacationsController < ApplicationController
   def set_fiscal_year_and_vacations
     @fyear = params['fy'].blank? ? Vacation.calculate_fiscal_year : params['fy'].to_i
     starting_year = @employee.start_date.blank? ? Date.current.year : @employee.start_date.fiscal_new_year.year
+    latest_year = Date.current.year + 1
     unless @employee.vacations.count == 0
       first_logged_vacation_year = @employee.vacations.order(start_date: :asc).first.start_date.year
       starting_year = first_logged_vacation_year < starting_year ? first_logged_vacation_year : starting_year
+      last_logged_vacation = @employee.vacations.order(end_date: :desc).first.end_date
+      last_logged_vacation_year = Vacation.calculate_fiscal_year(last_logged_vacation)
+      latest_year = last_logged_vacation_year > Date.current.year + 1? last_logged_vacation_year : Date.current.year + 1
     end
-    @fy_options = (starting_year..Date.current.year + 1).map { |date| ["Fiscal Year #{date}", date] }.reverse
+    @fy_options = (starting_year..latest_year).map { |date| ["Fiscal Year #{date}", date] }.reverse
     @fy_vacations = @employee.vacations
       .where('start_date >= :prev_fy_new_yr and start_date < :fy_new_yr or end_date >= :prev_fy_new_yr and end_date < :fy_new_yr', prev_fy_new_yr: Date.new(@fyear).previous_fiscal_new_year, fy_new_yr: Date.new(@fyear).fiscal_new_year)
       .order("#{params[:sort].blank? ? :start_date : params[:sort]} #{params[:rev] != 'true' ? 'ASC' : 'DESC'}")
