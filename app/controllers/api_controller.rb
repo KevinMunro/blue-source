@@ -10,6 +10,10 @@ class ApiController < ApplicationController
     render_json_or_error
   end
 
+  def department
+    render_json_or_error
+  end
+
   def manager
     render_json_or_error
   end
