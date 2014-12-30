@@ -1,6 +1,7 @@
 BlueSource::Application.routes.draw do
   # BlueSource API
   get 'api/subordinates'
+  get 'api/department'
   get 'api/manager'
 
   resources :titles
